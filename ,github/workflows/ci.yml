@@ -24,3 +24,30 @@ jobs:
 
       - name: Run tests           # a failure here turns the pipeline red
         run: pytest -v
+
+  build-and-push:
+    needs: test                          # only after tests pass
+    if: github.event_name == 'push'      # not on pull requests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write                    # allow pushing to GHCR
+    steps:
+      - uses: actions/checkout@v4
+
+      # Built-in token: no password to store
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # Tag with commit ID so every version is traceable.
+          # Image names must be lowercase.
+          tags: ghcr.io/sahadan/devops-demo:${{ github.sha }}
