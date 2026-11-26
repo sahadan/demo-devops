@@ -14,7 +14,7 @@ metrics = PrometheusMetrics(app)   # adds /metrics endpoint
 @app.route("/")
 def home():
     logging.info("Home page requested")
-    return "Hello, DevOps!"
+    return "Hello, DevOps Team"
 
 @app.route("/health")
 def health():
